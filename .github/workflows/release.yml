@@ -1,0 +1,49 @@
+name: Release
+
+# Runs whenever a version tag (v0.2.0, v1.0.0, ...) is pushed. Builds the
+# Electron app for Windows, macOS, and Linux on their native runners (cross
+# builds of signed/native installers aren't reliable from a single OS), then
+# publishes all installers + electron-updater's update manifests to a
+# GitHub Release. Already-installed apps pick up the new release the next
+# time they check for updates (see electron/main.js's initAutoUpdater).
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            build-flag: --win
+          - os: macos-latest
+            build-flag: --mac
+          - os: ubuntu-latest
+            build-flag: --linux
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: glovo-qcommerce-hub
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build renderer
+        run: npm run build
+        env:
+          VITE_MFC_API_URL: ${{ secrets.VITE_MFC_API_URL }}
+
+      - name: Build and publish installer
+        run: npx electron-builder ${{ matrix.build-flag }} --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
