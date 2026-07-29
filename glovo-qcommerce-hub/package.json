@@ -1,7 +1,7 @@
 {
   "name": "glovo-qcommerce-hub",
   "productName": "Glovo QCommerce Hub",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Internal desktop application for Glovo QCommerce operations (MFC, Groceries, Retail).",
   "main": "electron/main.js",
   "author": "Glovo QCommerce",

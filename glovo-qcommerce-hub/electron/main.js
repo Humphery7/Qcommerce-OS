@@ -183,9 +183,13 @@
 
 
 import { app, BrowserWindow, shell, ipcMain, net, session } from 'electron';
-import { autoUpdater } from 'electron-updater';
+import electronUpdater from 'electron-updater';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+// electron-updater is CommonJS; Node's static ESM/CJS interop can't always
+// see its named exports, so pull autoUpdater off the default export instead.
+const { autoUpdater } = electronUpdater;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isDev = process.env.NODE_ENV === 'development';
