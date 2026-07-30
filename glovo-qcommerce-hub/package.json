@@ -1,10 +1,14 @@
 {
   "name": "glovo-qcommerce-hub",
   "productName": "Glovo QCommerce Hub",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Internal desktop application for Glovo QCommerce operations (MFC, Groceries, Retail).",
   "main": "electron/main.js",
-  "author": "Glovo QCommerce",
+  "author": {
+    "name": "Glovo QCommerce",
+    "email": "humpheryufuoma@gmail.com"
+  },
+  "homepage": "https://github.com/Humphery7/Qcommerce-OS",
   "private": true,
   "type": "module",
   "scripts": {
