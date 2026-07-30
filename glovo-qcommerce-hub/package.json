@@ -73,7 +73,8 @@
     "publish": {
       "provider": "github",
       "owner": "Humphery7",
-      "repo": "Qcommerce-OS"
+      "repo": "Qcommerce-OS",
+      "draft": false
     }
   }
 }
