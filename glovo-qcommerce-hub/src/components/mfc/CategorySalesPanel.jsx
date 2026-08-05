@@ -5,13 +5,25 @@ const PALETTE = ['#00A082', '#375aa5', '#FFC244', '#d92d20', '#7c5800', '#8e5cd9
 
 function formatNumber(n) { return new Intl.NumberFormat('en-US').format(Math.round(n || 0)); }
 
-export default function CategorySalesPanel({ categories }) {
+// categories/products from MfcAnalyticsService carry overall figures at the
+// top level plus a losf1/mnlf1 sub-object each with the same shape - this
+// just picks which one a panel reads from based on the selected store.
+function getMetrics(row, store) {
+  if (store === 'losf1' || store === 'mnlf1') {
+    const s = row[store] || {};
+    return { delivered: s.delivered || 0, wowGrowth: s.wowGrowth };
+  }
+  return { delivered: row.delivered7d, wowGrowth: row.wowGrowthDelivered };
+}
+
+export default function CategorySalesPanel({ categories, store = 'overall' }) {
   if (!categories || categories.length === 0) return <EmptyState message="No category sales data available yet." />;
 
   const top = [...categories]
-    .sort((a, b) => b.delivered7d - a.delivered7d)
+    .map((c) => ({ raw: c, ...getMetrics(c, store) }))
+    .sort((a, b) => b.delivered - a.delivered)
     .slice(0, 10)
-    .map((c, i) => ({ label: c.categoryLevelOne.length > 20 ? c.categoryLevelOne.substring(0, 18) + '...' : c.categoryLevelOne, value: c.delivered7d, color: PALETTE[i % PALETTE.length], wowGrowth: c.wowGrowthDelivered }));
+    .map((c, i) => ({ label: c.raw.categoryLevelOne.length > 20 ? c.raw.categoryLevelOne.substring(0, 18) + '...' : c.raw.categoryLevelOne, value: c.delivered, color: PALETTE[i % PALETTE.length], wowGrowth: c.wowGrowth }));
 
   return (
     <div className="flex flex-col gap-3">

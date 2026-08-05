@@ -9,6 +9,7 @@ import OrdersSummaryPanel from '../../components/mfc/OrdersSummaryPanel';
 import ListedEfficientSkuPanel from '../../components/mfc/ListedEfficientSkuPanel';
 import CategorySalesPanel from '../../components/mfc/CategorySalesPanel';
 import ProductSalesPanel from '../../components/mfc/ProductSalesPanel';
+import AiInsightsHub from '../../components/mfc/insights/AiInsightsHub';
 import { MFC_TABS } from './mfcTabs';
 import {
   useDashboardData,
@@ -21,6 +22,12 @@ import {
 import { WORKSPACES } from '../../app/workspaces';
 
 const workspace = WORKSPACES.mfc;
+
+const STORE_OPTIONS = [
+  { value: 'overall', label: 'Overall' },
+  { value: 'losf1', label: 'LOSF1' },
+  { value: 'mnlf1', label: 'MNLF1' }
+];
 
 function Section({ title, subtitle, actions, children }) {
   return (
@@ -41,6 +48,8 @@ export default function MfcOverviewPage() {
   const [ordersPeriod, setOrdersPeriod] = useState('weekly');
   const [skuPeriod, setSkuPeriod] = useState('weekly');
   const [trendPeriod, setTrendPeriod] = useState('monthly');
+  const [categoryStore, setCategoryStore] = useState('overall');
+  const [productStore, setProductStore] = useState('overall');
 
   const dashboardQuery = useDashboardData();
   const ordersQuery = useMfcOrders();
@@ -63,15 +72,18 @@ export default function MfcOverviewPage() {
         breadcrumb={[{ label: 'Workspaces' }, { label: 'Micro-fulfillment Center' }]}
         tabs={MFC_TABS}
         actions={
-          <Button
-            variant="secondary"
-            size="sm"
-            icon="sync"
-            loading={runSnapshot.isPending}
-            onClick={() => runSnapshot.mutate()}
-          >
-            {runSnapshot.isPending ? 'Refreshing\u2026' : 'Refresh Snapshot'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <AiInsightsHub />
+            <Button
+              variant="secondary"
+              size="sm"
+              icon="sync"
+              loading={runSnapshot.isPending}
+              onClick={() => runSnapshot.mutate()}
+            >
+              {runSnapshot.isPending ? 'Refreshing\u2026' : 'Refresh Snapshot'}
+            </Button>
+          </div>
         }
       />
       <div className="flex-1 overflow-y-auto no-scrollbar bg-surface">
@@ -118,11 +130,19 @@ export default function MfcOverviewPage() {
                 <AvailabilityTrendChart data={trendData} />
               </Section>
 
-              <Section title="Category Sales" subtitle="This week delivered volume by category.">
-                <CategorySalesPanel categories={categoryQuery.data?.categories} />
+              <Section
+                title="Category Sales"
+                subtitle="This week delivered volume by category."
+                actions={<PeriodToggle value={categoryStore} onChange={setCategoryStore} options={STORE_OPTIONS} />}
+              >
+                <CategorySalesPanel categories={categoryQuery.data?.categories} store={categoryStore} />
               </Section>
-              <Section title="Product Sales" subtitle="This week delivered volume by product.">
-                <ProductSalesPanel products={productQuery.data?.products} />
+              <Section
+                title="Product Sales"
+                subtitle="This week delivered volume by product."
+                actions={<PeriodToggle value={productStore} onChange={setProductStore} options={STORE_OPTIONS} />}
+              >
+                <ProductSalesPanel products={productQuery.data?.products} store={productStore} />
               </Section>
             </>
           )}

@@ -57,6 +57,14 @@ export default function OrdersSummaryPanel({ orders, period }) {
       {segments.map((s) => {
         const current = isWeekly ? s.data?.currentWeek : s.data?.monthToDate;
         const growthPct = isWeekly ? safeGrowthPct(s.data?.currentWeek, s.data?.lastWeek) : null;
+
+        // TEMPORARY - remove once the WoW growth numbers are verified.
+        console.log(`[WoW debug] ${s.label}:`, {
+          currentWeek: s.data?.currentWeek,
+          lastWeek: s.data?.lastWeek,
+          growthPct: safeGrowthPct(s.data?.currentWeek, s.data?.lastWeek)
+        });
+
         return (
           <OrdersSegmentCard
             key={s.key}

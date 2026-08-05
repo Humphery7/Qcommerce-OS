@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSupplierSummary } from '../../api/mfc';
+import { useWeightedAvailabilitySupplierSummary } from '../../api/mfc';
 import { LoadingPanel } from '../../components/ui/LoadingState';
 import ErrorState from '../../components/ui/ErrorState';
 import DataTable from '../../components/ui/DataTable';
@@ -19,10 +19,6 @@ const FIELD_SUFFIX = {
   weekly: { current: 'WeekCurrent', prev1: 'W1', prev2: 'W2' }
 };
 
-// This page's own field lookup already keys off 6 distinct
-// {monthly,weekly}_{current,prev1,prev2} combinations (see FIELD_SUFFIX
-// above) — it needs its own PeriodToggle options to match, not the
-// generic Monthly/This Week default other pages use.
 const SUPPLIER_SUMMARY_PERIOD_OPTIONS = [
   { value: 'monthly_current', label: 'Current Month' },
   { value: 'monthly_prev1', label: 'Last Month' },
@@ -32,11 +28,11 @@ const SUPPLIER_SUMMARY_PERIOD_OPTIONS = [
   { value: 'weekly_prev2', label: 'Last 2 Weeks' }
 ];
 
-export default function SupplierSummaryPage() {
+export default function WeightedAvailabilitySupplierSummaryPage() {
   const navigate = useNavigate();
   const [selectedPeriod, setSelectedPeriod] = useState('monthly_current');
   const [search, setSearch] = useState('');
-  const { data, isLoading, isError, error, refetch } = useSupplierSummary();
+  const { data, isLoading, isError, error, refetch } = useWeightedAvailabilitySupplierSummary();
 
   const [periodType, timeframe] = selectedPeriod.split('_');
   const suffix = FIELD_SUFFIX[periodType][timeframe];
@@ -55,7 +51,7 @@ export default function SupplierSummaryPage() {
         <PeriodToggle value={selectedPeriod} onChange={setSelectedPeriod} options={SUPPLIER_SUMMARY_PERIOD_OPTIONS} />
       </div>
 
-      {isLoading && <LoadingPanel message={'Loading supplier summary\u2026'} />}
+      {isLoading && <LoadingPanel message={'Loading supplier summary…'} />}
       {isError && <ErrorState error={error} onRetry={refetch} />}
 
       {data && !isError && (
@@ -82,7 +78,7 @@ export default function SupplierSummaryPage() {
               { key: 'ordered', header: 'Ordered', align: 'right', sortable: true, sortValue: (r) => r[`ordered${suffix}`], render: (r) => formatNumber(r[`ordered${suffix}`]) },
               { key: 'received', header: 'Received', align: 'right', sortable: true, sortValue: (r) => r[`received${suffix}`], render: (r) => formatNumber(r[`received${suffix}`]) },
               { key: 'fillRate', header: 'Fill Rate', align: 'right', sortable: true, sortValue: (r) => r[`fillRate${suffix}`] || 0, render: (r) => { const rate = r[`fillRate${suffix}`] || 0; return <span className={rate < 80 ? 'text-error font-semibold' : 'font-semibold'}>{formatPercent(rate)}</span>; } },
-              { key: 'action', header: '', align: 'right', render: (r) => (<Button variant="ghost" size="sm" icon="chevron_right" onClick={() => navigate(`/mfc/suppliers/${encodeURIComponent(r.supplierName)}`)}>Products</Button>) }
+              { key: 'action', header: '', align: 'right', render: (r) => (<Button variant="ghost" size="sm" icon="chevron_right" onClick={() => navigate(`/mfc/weighted-availability/${encodeURIComponent(r.supplierName)}`)}>Products</Button>) }
             ]}
             rows={filteredSuppliers}
             rowKey="supplierName"

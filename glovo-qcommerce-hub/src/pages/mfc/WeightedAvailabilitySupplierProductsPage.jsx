@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useProductsForSupplier } from '../../api/mfc';
+import { useWeightedAvailabilityProductsForSupplier } from '../../api/mfc';
 import { LoadingPanel } from '../../components/ui/LoadingState';
 import ErrorState from '../../components/ui/ErrorState';
 import DataTable from '../../components/ui/DataTable';
@@ -14,9 +14,6 @@ function formatNumber(n) {
 function formatPercent(n) {
   return `${((n || 0) * 100).toFixed(1)}%`;
 }
-// currentAvailability comes back already as a 0-100 number (unlike fillRate,
-// which is a real 0-1 decimal) — formatting it with formatPercent's ×100
-// was inflating it into the thousands.
 function formatAvailabilityPercent(n) {
   return `${(n || 0).toFixed(1)}%`;
 }
@@ -24,12 +21,12 @@ function formatCurrency(n) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
 }
 
-export default function SupplierProductsPage() {
+export default function WeightedAvailabilitySupplierProductsPage() {
   const { supplierName } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const decodedName = decodeURIComponent(supplierName || '');
-  const { data, isLoading, isError, error, refetch } = useProductsForSupplier(decodedName);
+  const { data, isLoading, isError, error, refetch } = useWeightedAvailabilityProductsForSupplier(decodedName);
 
   const filteredProducts = useMemo(() => {
     if (!data?.products) return [];
@@ -42,13 +39,13 @@ export default function SupplierProductsPage() {
 
   return (
     <div className="space-y-4">
-      {isLoading && <LoadingPanel message={`Loading products for ${decodedName}\u2026`} />}
+      {isLoading && <LoadingPanel message={`Loading products for ${decodedName}…`} />}
       {isError && <ErrorState error={error} onRetry={refetch} />}
 
       {data && !isError && (
         <>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" icon="arrow_back" onClick={() => navigate('/mfc/suppliers/summary')} />
+            <Button variant="ghost" size="sm" icon="arrow_back" onClick={() => navigate('/mfc/weighted-availability/summary')} />
             <div>
               <h2 className="text-[16px] font-semibold text-on-surface">{decodedName}</h2>
               <p className="text-[11px] text-secondary">Product-level availability performance for this supplier.</p>
@@ -81,7 +78,7 @@ export default function SupplierProductsPage() {
                 { key: 'sku', header: 'SKU', mono: true, sortable: true },
                 { key: 'productName', header: 'Product', sortable: true },
                 { key: 'categoryLevelOne', header: 'Category', sortable: true },
-                { key: 'currentAvailability', header: 'Current Availability', align: 'right', sortable: true, render: (r) => r.currentAvailability !== undefined ? (<span className={r.currentAvailability < 80 ? 'text-error font-semibold' : 'font-semibold'}>{formatAvailabilityPercent(r.currentAvailability)}</span>) : '\u2014' },
+                { key: 'currentAvailability', header: 'Current Availability', align: 'right', sortable: true, render: (r) => r.currentAvailability !== undefined ? (<span className={r.currentAvailability < 80 ? 'text-error font-semibold' : 'font-semibold'}>{formatAvailabilityPercent(r.currentAvailability)}</span>) : '—' },
                 { key: 'fillRate', header: 'Fill Rate', align: 'right', sortable: true, render: (r) => (<span className={r.fillRate < 0.8 ? 'text-error font-semibold' : 'font-semibold'}>{formatPercent(r.fillRate)}</span>) },
                 { key: 'latestCost', header: 'Latest Cost', align: 'right', mono: true, sortable: true, render: (r) => formatCurrency(r.latestCost) },
                 { key: 'weeklyTrend', header: '6-Week Trend', align: 'right', render: (r) => (<div className="flex justify-end"><Sparkline data={r.weeklyTrend} /></div>) }

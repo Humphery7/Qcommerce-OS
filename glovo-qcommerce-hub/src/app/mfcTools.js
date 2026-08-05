@@ -38,5 +38,21 @@ export const MFC_TOOLS = [
     description: 'View and manage recommended supplier trade prices for the recommendation engine.',
     focusArea: 'Price Intelligence',
     status: 'Operational'
+  },
+  {
+    id: 'weighted-availability',
+    to: '/mfc/weighted-availability',
+    icon: 'inventory',
+    title: 'Weighted Availability',
+    description: 'Availability and every supplier’s ordered/received quantity and fill rate across all products, not just ultrafresh, monthly or weekly.',
+    focusArea: 'Weighted Availability',
+    status: 'Operational'
   }
+
+  // WBR/Daily/Monthly review + Ask AI live in the "AI Insights" hub at the
+  // top of the MFC Overview page (src/components/mfc/insights/AiInsightsHub.jsx),
+  // not here — they're not "tools" you pick from a grid, they're a single
+  // always-visible entry point. Routes (/mfc/wbr-review, /mfc/daily-review,
+  // /mfc/monthly-review, /mfc/ask-ai) still exist in App.jsx; the hub links
+  // into them.
 ];

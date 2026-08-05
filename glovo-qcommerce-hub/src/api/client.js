@@ -14,10 +14,16 @@ export class ApiNotConfiguredError extends Error {
 
 /** Thrown for any response the Apps Script backend itself flagged as an error. */
 export class ApiError extends Error {
-  constructor(message, context) {
+  constructor(message, context, detail) {
     super(message || 'The request failed.');
     this.name = 'ApiError';
     this.context = context;
+    // Utilities_.buildErrorResponse() on the backend puts the actual
+    // exception message here (e.g. "GEMINI_API_KEY is not set...") behind
+    // a generic, user-friendly `message` — surfaced separately so callers
+    // that want the specific cause (debugging UI) can show it without
+    // forcing every ErrorState in the app to get more verbose.
+    this.detail = detail;
   }
 }
 
@@ -86,7 +92,7 @@ async function parseResponse(res, action) {
   }
   const data = await res.json();
   if (data && data.error) {
-    throw new ApiError(data.message || `The ${action} request failed.`, data.context || action);
+    throw new ApiError(data.message || `The ${action} request failed.`, data.context || action, data.detail);
   }
   return data;
 }

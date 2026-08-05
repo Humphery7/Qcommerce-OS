@@ -73,6 +73,20 @@ export default {
         'card-hover': '0 4px 12px 0 rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.06)',
         popover: '0 8px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
         'elevated': '0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04)'
+      },
+      keyframes: {
+        // Used on the AI Insights pill while it has an unseen review.
+        // Ring grows from nothing to a visible glow then fades back out -
+        // opacity peaks exactly when the spread is largest, so there's an
+        // actual visible moment (a prior version had these inverted,
+        // meaning it was see-through at every frame).
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(139,92,246,0)' },
+          '50%': { boxShadow: '0 0 0 7px rgba(139,92,246,0.55)' }
+        }
+      },
+      animation: {
+        'glow-pulse': 'glow-pulse 1.7s ease-in-out infinite'
       }
     }
   },

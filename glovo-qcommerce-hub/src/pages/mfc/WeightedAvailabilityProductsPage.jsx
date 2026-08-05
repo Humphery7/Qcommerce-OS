@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useProductsForSupplier, useSupplierList } from '../../api/mfc';
+import { useWeightedAvailabilityProductsForSupplier, useWeightedAvailabilitySupplierList } from '../../api/mfc';
 import { LoadingPanel } from '../../components/ui/LoadingState';
 import ErrorState from '../../components/ui/ErrorState';
 import EmptyState from '../../components/ui/EmptyState';
@@ -9,14 +9,11 @@ import Sparkline from '../../components/mfc/Sparkline';
 
 function formatNumber(n) { return new Intl.NumberFormat('en-US').format(Math.round(n || 0)); }
 function formatPercent(n) { return `${((n || 0) * 100).toFixed(1)}%`; }
-// currentAvailability comes back already as a 0-100 number (unlike fillRate,
-// which is a real 0-1 decimal) — formatting it with formatPercent's ×100
-// was inflating it into the thousands.
 function formatAvailabilityPercent(n) { return `${(n || 0).toFixed(1)}%`; }
 function formatCurrency(n) { return `₦${new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0)}`; }
 
-export default function ProductsPage() {
-  const { data: supplierListData, isLoading: isLoadingSuppliers, isError: isSupplierListError, error: supplierListError, refetch: refetchSuppliers } = useSupplierList();
+export default function WeightedAvailabilityProductsPage() {
+  const { data: supplierListData, isLoading: isLoadingSuppliers, isError: isSupplierListError, error: supplierListError, refetch: refetchSuppliers } = useWeightedAvailabilitySupplierList();
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [search, setSearch] = useState('');
 
@@ -26,7 +23,7 @@ export default function ProductsPage() {
     if (!selectedSupplier && suppliers.length > 0) { setSelectedSupplier(suppliers[0]); }
   }, [suppliers, selectedSupplier]);
 
-  const { data, isLoading, isError, error, refetch } = useProductsForSupplier(selectedSupplier);
+  const { data, isLoading, isError, error, refetch } = useWeightedAvailabilityProductsForSupplier(selectedSupplier);
 
   const filteredProducts = useMemo(() => {
     if (!data?.products) return [];
@@ -63,7 +60,7 @@ export default function ProductsPage() {
 
       {selectedSupplier && (
         <>
-          {isLoading && <LoadingPanel message={`Loading products for ${selectedSupplier}\u2026`} />}
+          {isLoading && <LoadingPanel message={`Loading products for ${selectedSupplier}…`} />}
           {isError && <ErrorState error={error} onRetry={refetch} />}
 
           {data && !isError && (
@@ -89,7 +86,7 @@ export default function ProductsPage() {
                     { key: 'sku', header: 'SKU', mono: true, sortable: true },
                     { key: 'productName', header: 'Product Name', sortable: true },
                     { key: 'categoryLevelOne', header: 'Categories', sortable: true },
-                    { key: 'currentAvailability', header: 'Current Availability', align: 'right', sortable: true, render: (r) => r.currentAvailability !== undefined ? (<span className={r.currentAvailability < 80 ? 'text-error font-semibold' : 'font-semibold'}>{formatAvailabilityPercent(r.currentAvailability)}</span>) : '\u2014' },
+                    { key: 'currentAvailability', header: 'Current Availability', align: 'right', sortable: true, render: (r) => r.currentAvailability !== undefined ? (<span className={r.currentAvailability < 80 ? 'text-error font-semibold' : 'font-semibold'}>{formatAvailabilityPercent(r.currentAvailability)}</span>) : '—' },
                     { key: 'quantityOrdered', header: 'Quantity Ordered', align: 'right', sortable: true, render: (r) => formatNumber(r.quantityOrdered) },
                     { key: 'quantityReceived', header: 'Quantity Received', align: 'right', sortable: true, render: (r) => formatNumber(r.quantityReceived) },
                     { key: 'fillRate', header: 'Fill Rate', align: 'right', sortable: true, render: (r) => (<span className={r.fillRate < 0.8 ? 'text-error font-semibold' : 'font-semibold'}>{formatPercent(r.fillRate)}</span>) },

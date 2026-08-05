@@ -43,3 +43,25 @@ export function SkeletonKpiRow({ count = 4 }) {
     </div>
   );
 }
+
+/** A single large placeholder — charts, single-card content areas. */
+export function SkeletonBlock({ height = 240, className }) {
+  return (
+    <div
+      className={clsx('rounded-lg bg-surface-container animate-pulse', className)}
+      style={{ height }}
+      aria-hidden="true"
+    />
+  );
+}
+
+/** A grid of taller placeholder cards — health scorecards, tool cards, etc. */
+export function SkeletonCards({ count = 6, height = 150 }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" aria-hidden="true">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-lg bg-surface-container animate-pulse border border-outline-variant" style={{ height }} />
+      ))}
+    </div>
+  );
+}

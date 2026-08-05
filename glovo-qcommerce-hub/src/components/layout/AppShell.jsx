@@ -2,7 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import UpdateBanner from '../ui/UpdateBanner';
 
-const TOOL_ROUTES = ['/mfc/suppliers'];
+const TOOL_ROUTES = ['/mfc/suppliers', '/mfc/prices'];
 
 export default function AppShell() {
   const { pathname } = useLocation();

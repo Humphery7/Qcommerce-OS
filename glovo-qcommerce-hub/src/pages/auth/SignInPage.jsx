@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { mfcApi } from '../../api/mfc';
 
 export default function SignInPage() {
+  const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
   const markSessionChecked = useAuthStore((s) => s.markSessionChecked);
   const apiBaseUrl = useSettingsStore((s) => s.apiBaseUrl);
@@ -35,6 +37,7 @@ export default function SignInPage() {
 
         setAuth({ user });
         markSessionChecked();
+        navigate('/');
       } catch (err) {
         setErrorMsg(err.message || 'Google Workspace login failed.');
       } finally { setLoading(false); }
@@ -48,6 +51,7 @@ export default function SignInPage() {
       const name = email.split('@')[0];
       setAuth({ user: { email, name } });
       markSessionChecked();
+      navigate('/');
     } else if (input) {
       setErrorMsg('Please use a valid @glovoapp.com email address.');
     }
